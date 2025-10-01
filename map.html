@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>서울 한옥 카페 지도</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  body { margin:0; padding:0; font-family: Arial, sans-serif; }
+  #map { height: 90vh; width: 100%; }
+  header { padding: 10px; text-align: center; background:#f8f8f8; }
+</style>
+</head>
+<body>
+<header>
+  <h1>서울 한옥 카페 지도</h1>
+  <p>서울에 위치한 한옥 카페들을 확인해보세요.</p>
+</header>
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+<script>
+var map = L.map('map').setView([37.5665, 126.9780], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+Papa.parse('seoul_hanok_cafes.csv', {
+  download: true,
+  header: true,
+  complete: function(results) {
+    var data = results.data;
+    data.forEach(function(row) {
+      if(row.lat && row.lon) {
+        var lat = parseFloat(row.lat);
+        var lon = parseFloat(row.lon);
+        var name = row.name_ko || '이름 없음';
+        var address = row.address || '';
+        var desc = row.description || '';
+        var marker = L.marker([lat, lon]).addTo(map);
+        var popupHtml = '<strong>' + name + '</strong><br/>' +
+                        address + '<br/>' + desc;
+        marker.bindPopup(popupHtml);
+      }
+    });
+  }
+});
+</script>
+</body>
+</html>
